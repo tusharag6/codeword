@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import {
   Card,
@@ -53,7 +54,11 @@ export default function LoginCard() {
       <CardFooter className="flex flex-col gap-2 items-start">
         <Button className="w-full bg-[#5865f2]">Login</Button>
         <div className="text-sm text-muted-foreground text-[#a4a9b0]">
-          Need an account? Register
+          Need an account?
+          <Link className="text-[#0b8ccd]" to="/register">
+            {' '}
+            Register
+          </Link>
         </div>
       </CardFooter>
     </Card>
