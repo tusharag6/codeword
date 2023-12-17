@@ -1,12 +1,13 @@
+import LoginCard from '../components/LoginCard';
 import authBg from '../assets/authBg.svg';
 
 function Login() {
   return (
     <div
-      className="bg-cover bg-center h-screen w-full"
+      className="bg-cover bg-center h-screen w-full flex justify-center items-center"
       style={{ backgroundImage: `url(${authBg})` }}
     >
-      <div className="text-white text-4xl">Login</div>
+      <LoginCard />
     </div>
   );
 }
