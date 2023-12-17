@@ -13,7 +13,7 @@ import { Label } from './ui/label';
 
 export default function LoginCard() {
   return (
-    <Card className="w-[30%] border bg-[#313338] border-transparent text-white">
+    <Card className="w-[30%] border-transparent">
       <CardHeader className="flex flex-col items-center">
         <CardTitle className="font-bold">Welcome back!</CardTitle>
         <CardDescription className="text-[#a4a9b0]">
@@ -30,7 +30,7 @@ export default function LoginCard() {
               <Input
                 type="email"
                 id="email"
-                className="bg-[#1e1f22] border-transparent"
+                className="bg-input border-transparent"
                 required
               />
             </div>
@@ -41,10 +41,10 @@ export default function LoginCard() {
               <Input
                 type="password"
                 id="password"
-                className="bg-[#1e1f22] border-transparent"
+                className="bg-input border-transparent"
                 required
               />
-              <div className="text-xs text-muted-foreground text-[#0b8ccd]">
+              <div className="text-xs text-[#0b8ccd]">
                 Forgot your password?{' '}
               </div>
             </div>
@@ -52,8 +52,8 @@ export default function LoginCard() {
         </form>
       </CardContent>
       <CardFooter className="flex flex-col gap-2 items-start">
-        <Button className="w-full bg-[#5865f2]">Login</Button>
-        <div className="text-sm text-muted-foreground text-[#a4a9b0]">
+        <Button className="w-full">Login</Button>
+        <div className="text-sm text-[#a4a9b0]">
           Need an account?
           <Link className="text-[#0b8ccd]" to="/register">
             {' '}
