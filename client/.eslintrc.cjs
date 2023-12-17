@@ -38,5 +38,8 @@ module.exports = {
         endOfLine: 'auto',
       },
     ],
+    'react/prop-types': 0,
+    'react/jsx-props-no-spreading': 0,
+    'jsx-a11y/heading-has-content': 0,
   },
 };
