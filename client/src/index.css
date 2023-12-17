@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --card: #313338;
+  --button: #5865f2;
+  --input: #1e1f22;
+}
