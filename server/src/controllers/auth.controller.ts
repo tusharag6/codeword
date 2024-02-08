@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
-import { register, login } from "../services/user.services";
+import { register, login } from "../services/auth.services";
 import { Files } from "../interfaces/File";
+import prisma from "../db";
+import { CustomRequest } from "../interfaces/auth";
+const cookieOption = {
+  httpOnly: true,
+  secure: true,
+};
 const registerUser = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
@@ -44,13 +50,9 @@ const loginUser = async (req: Request, res: Response) => {
     if (!user?.loggedUser) {
       throw new Error("No user found");
     }
-    const option = {
-      httpOnly: true,
-      secure: true,
-    };
     res
-      .cookie("refreshToken", user.tokens.refreshToken, option)
-      .cookie("accessToken", user.tokens.accessToken, option)
+      .cookie("refreshToken", user.tokens.refreshToken, cookieOption)
+      .cookie("accessToken", user.tokens.accessToken, cookieOption)
       .status(201)
       .json({
         message: "logged in",
@@ -62,7 +64,19 @@ const loginUser = async (req: Request, res: Response) => {
     });
   }
 };
-const logoutUser = async (req: Request, res: Response) => {
-  
+const logoutUser = async (req: CustomRequest, res: Response) => {
+  await prisma.user.update({
+    where: {
+      id: req.user?.id,
+    },
+    data: {
+      refreshToken: "",
+    },
+  });
+  res
+    .status(201)
+    .clearCookie("refreshToken")
+    .clearCookie("accessToken")
+    .json({ message: "user logged out" });
 };
-export { registerUser, loginUser };
+export { registerUser, loginUser, logoutUser };
