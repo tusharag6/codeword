@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { NextFunction, Response } from "express";
-import { CustomRequest } from "../interfaces/auth";
+import { CustomRequest } from "../interfaces/auth.interfaces";
 const secret: any = process.env.ACCESS_TOKEN_SECRET;
 export const verifyJwt = async (
   req: CustomRequest,
@@ -14,7 +14,6 @@ export const verifyJwt = async (
     if (!token) {
       throw new Error("Invalid access token");
     }
-
     let decodeToken: JwtPayload | string;
     try {
       decodeToken = jwt.verify(token, secret);
@@ -25,7 +24,6 @@ export const verifyJwt = async (
       throw new Error("Invalid access token");
     }
     req.user = decodeToken;
-    // console.log(decodeToken.id);
     next();
   } catch (error) {
     console.log("Error", error);
