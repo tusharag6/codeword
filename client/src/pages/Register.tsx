@@ -1,5 +1,5 @@
 import RegisterCard from '../components/RegisterCard';
-import authBg from '../assets/authBg.svg';
+import authBg from '../assets/auth.svg';
 
 function Register() {
   return (
@@ -7,7 +7,9 @@ function Register() {
       className="bg-cover bg-center h-screen w-full flex justify-center items-center"
       style={{ backgroundImage: `url(${authBg})` }}
     >
-      <RegisterCard />
+      <div className="container max-w-sm md:max-w-md w-full ">
+        <RegisterCard />
+      </div>
     </div>
   );
 }

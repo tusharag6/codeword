@@ -13,10 +13,10 @@ import { Label } from './ui/label';
 
 export default function LoginCard() {
   return (
-    <Card className="w-[30%] border-transparent">
+    <Card className="border-transparent">
       <CardHeader className="flex flex-col items-center">
         <CardTitle className="font-bold">Welcome back!</CardTitle>
-        <CardDescription className="text-[#a4a9b0]">
+        <CardDescription className="text-[#a4a9b0] hidden xs:block">
           We&apos;re so excited to see you again!
         </CardDescription>
       </CardHeader>

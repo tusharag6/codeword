@@ -12,7 +12,7 @@ import { Label } from './ui/label';
 
 export default function RegisterCard() {
   return (
-    <Card className="w-[30%] border border-transparent">
+    <Card className="border border-transparent">
       <CardHeader className="flex flex-col items-center">
         <CardTitle className="font-bold">Create an Account</CardTitle>
       </CardHeader>

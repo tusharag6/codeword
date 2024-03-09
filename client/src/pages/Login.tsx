@@ -1,5 +1,5 @@
 import LoginCard from '../components/LoginCard';
-import authBg from '../assets/authBg.svg';
+import authBg from '../assets/auth.svg';
 
 function Login() {
   return (
@@ -7,7 +7,9 @@ function Login() {
       className="bg-cover bg-center h-screen w-full flex justify-center items-center"
       style={{ backgroundImage: `url(${authBg})` }}
     >
-      <LoginCard />
+      <div className="container max-w-sm md:max-w-md w-full ">
+        <LoginCard />
+      </div>
     </div>
   );
 }
