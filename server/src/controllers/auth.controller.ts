@@ -4,9 +4,11 @@ import { Files } from "../interfaces/file.interfaces";
 import { ApiError } from "../utils/ApiError";
 import prisma from "../db";
 import { CustomRequest } from "../interfaces/auth.interfaces";
+import jwt from "jsonwebtoken";
+
 const cookieOption = {
   httpOnly: true,
-  secure: true,
+  secure: false,
 };
 const registerUser = async (req: Request, res: Response) => {
   const { username, email, password } = req.body;
@@ -42,13 +44,9 @@ const loginUser = async (req: Request, res: Response) => {
   if (!user?.loggedUser) {
     throw new ApiError(404, "User not found");
   }
-  res
-    .cookie("refreshToken", user.tokens.refreshToken, cookieOption)
-    .cookie("accessToken", user.tokens.accessToken, cookieOption)
-    .status(201)
-    .json({
-      message: "logged in",
-    });
+  res.cookie("refreshToken", user.tokens.refreshToken, cookieOption);
+
+  res.json(user.tokens.accessToken);
 };
 const logoutUser = async (req: CustomRequest, res: Response) => {
   try {
@@ -63,10 +61,48 @@ const logoutUser = async (req: CustomRequest, res: Response) => {
     res
       .status(201)
       .clearCookie("refreshToken")
-      .clearCookie("accessToken")
       .json({ message: "user logged out" });
   } catch (error) {
     console.log("Error:", error);
   }
 };
-export { registerUser, loginUser, logoutUser };
+
+const refreshToken = async (req: Request, res: Response) => {
+  const refreshToken = req.cookies?.refreshToken;
+
+  if (!refreshToken) {
+    throw new ApiError(401, "Refresh token not found");
+  }
+
+  jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET as string,
+    async (err: any, decoded: any) => {
+      if (err) {
+        throw new ApiError(403, "Invalid or expired refresh token");
+      }
+
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.id },
+      });
+
+      if (!user) {
+        throw new ApiError(404, "User not found");
+      }
+
+      const accessToken = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+      );
+
+      res.json({ accessToken });
+    }
+  );
+};
+
+export { registerUser, loginUser, logoutUser, refreshToken };
