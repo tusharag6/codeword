@@ -53,7 +53,7 @@ const logoutUser = async (req: CustomRequest, res: Response) => {
   try {
     await prisma.user.update({
       where: {
-        id: req.user?.id,
+        id: req.user?.user.id,
       },
       data: {
         refreshToken: null,
@@ -73,40 +73,37 @@ const logoutUser = async (req: CustomRequest, res: Response) => {
 const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
 
-  if (!refreshToken) {
-    throw new ApiError(401, "Refresh token not found");
+  if (!refreshToken || typeof refreshToken !== "string") {
+    console.log("Refresh token not found, login again");
+
+    return res.json({ message: "Refresh token not found, login again" });
   }
 
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET as string,
-    async (err: any, decoded: any) => {
-      if (err) {
-        throw new ApiError(403, "Invalid or expired refresh token");
-      }
-
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.id },
-      });
-
-      if (!user) {
-        throw new ApiError(404, "User not found");
-      }
-
-      const accessToken = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-        },
-        process.env.ACCESS_TOKEN_SECRET as string,
-        { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-      );
-      console.log(accessToken);
-
-      res.json({ accessToken });
+  try {
+    const user = await prisma.user.findFirst({ where: { refreshToken } });
+    if (!user) {
+      return res
+        .sendStatus(403)
+        .json({ message: "No user found, Try Log In Again" });
     }
-  );
+
+    // Generate a new access token
+    const accessToken = jwt.sign(
+      { user: user },
+      process.env.ACCESS_TOKEN_SECRET as string,
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+      }
+    );
+
+    return res.json({ success: true, accessToken });
+  } catch (error) {
+    console.error("Error during token refresh:", error);
+    return res.sendStatus(500).json({
+      success: false,
+      message: "Invalid refresh token",
+    });
+  }
 };
 
 const getUserInfo = async (req: CustomRequest, res: Response) => {
@@ -123,16 +120,13 @@ const getUserInfo = async (req: CustomRequest, res: Response) => {
     async (err: any, decoded: any) => {
       try {
         if (err) {
-          console.log(".....", err);
-
           res.status(401).json({ message: "Invalid or expired access token" });
-          // throw new ApiError(401, "Invalid or expired access token");
         }
         if (!decoded) {
           res.sendStatus(401).json("Decoded Undefined");
         }
         const user = await prisma.user.findUnique({
-          where: { id: decoded.id },
+          where: { id: decoded.user.id },
         });
 
         if (!user) {

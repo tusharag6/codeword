@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../api/axios';
 import { Button } from '../components/ui/button';
-import { logoutUser } from '../api/auth';
+import { logoutUser, refresh } from '../api/auth';
 
 interface UserInfo {
   id: string;
@@ -17,12 +17,21 @@ function Home() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const navigate = useNavigate();
 
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = async (): Promise<void> => {
     try {
+      console.log('Fetching user info');
       const response: AxiosResponse = await api.get('/user/profile');
       const responseData = response.data;
+      console.log('Fetched User Info');
       setUserInfo(responseData);
     } catch (error) {
+      console.log('Error fetching user info:', error);
+      if (error.response.status === 401) {
+        const newAccessToken = await refresh();
+        if (newAccessToken) {
+          await fetchUserInfo();
+        }
+      }
       throw new Error('Fetching failed');
     }
   };
@@ -30,12 +39,18 @@ function Home() {
   const { mutate, isPending } = useMutation({
     mutationFn: logoutUser,
     onSuccess: () => {
-      localStorage.removeItem('accessToken');
       navigate('/login');
       toast.success('Logout successful');
     },
-    onError: () => {
-      toast.error('Logout failed');
+    onError: async (error) => {
+      if (error) {
+        const newAccessToken = await refresh();
+        if (newAccessToken) {
+          mutate();
+        }
+      } else {
+        toast.error('Logout failed');
+      }
     },
   });
 
@@ -51,19 +66,16 @@ function Home() {
       >
         Logout
       </Button>
-      {userInfo ? (
-        <div>
-          <h2>User Info</h2>
-          <p>ID: {userInfo.id}</p>
-          <p>Email: {userInfo.email}</p>
-          <p>Username: {userInfo.username}</p>
-          {/* Add more user info fields as needed */}
-        </div>
-      ) : (
-        <button onClick={fetchUserInfo} type="submit">
-          Fetch User Info
-        </button>
-      )}
+      <div>
+        <h2>User Info</h2>
+        <p>ID: {userInfo?.id}</p>
+        <p>Email: {userInfo?.email}</p>
+        <p>Username: {userInfo?.username}</p>
+        {/* Add more user info fields as needed */}
+      </div>
+      <button onClick={fetchUserInfo} type="submit">
+        Fetch User Info
+      </button>
     </div>
   );
 }

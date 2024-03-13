@@ -37,8 +37,7 @@ export default function LoginCard() {
 
   const { mutate, isPending } = useMutation({
     mutationFn: login,
-    onSuccess: (accessToken) => {
-      localStorage.setItem('accessToken', JSON.stringify(accessToken));
+    onSuccess: () => {
       navigate('/');
       toast.success('Login successful');
     },
@@ -52,7 +51,7 @@ export default function LoginCard() {
       mutate(data);
       reset();
     } catch (error) {
-      // console.error('Login failed:', error);
+      console.error('Login failed:', error);
     }
   };
 

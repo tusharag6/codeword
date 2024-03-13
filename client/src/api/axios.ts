@@ -7,9 +7,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const accessTokenString = localStorage.getItem('accessToken');
-    const accessToken = accessTokenString
-      ? JSON.parse(accessTokenString)
-      : null;
+    const accessToken = accessTokenString;
 
     if (accessToken) {
       // eslint-disable-next-line no-param-reassign
@@ -22,46 +20,46 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
-let refresh = false;
+// let refresh = false;
 
-api.interceptors.response.use(
-  (response) => {
-    console.log('Response:', response);
-    return response;
-  },
-  async (error) => {
-    console.log('Error', error);
+// api.interceptors.response.use(
+//   (response) => {
+//     console.log('Response:', response);
+//     return response;
+//   },
+//   async (error) => {
+//     console.log('Error', error);
 
-    const originalRequest = error.config;
-    if (
-      (error.response.status === 401 && !refresh) ||
-      (error.response.status === 500 && !refresh)
-    ) {
-      refresh = true;
+//     const originalRequest = error.config;
+//     if (
+//       (error.response.status === 401 && !refresh) ||
+//       (error.response.status === 500 && !refresh)
+//     ) {
+//       refresh = true;
 
-      console.log('Token expired');
-      try {
-        const response = await api.post(
-          '/user/refresh',
-          {},
-          {
-            withCredentials: true,
-          }
-        );
-        const { accessToken } = response.data;
+//       console.log('Token expired');
+//       try {
+//         const response = await api.post(
+//           '/user/refresh',
+//           {},
+//           {
+//             withCredentials: true,
+//           }
+//         );
+//         const { accessToken } = response.data;
 
-        localStorage.setItem('accessToken', JSON.stringify(accessToken));
+//         localStorage.setItem('accessToken', JSON.stringify(accessToken));
 
-        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+//         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-        return await api(originalRequest);
-      } catch (err) {
-        console.log('Error:', err);
-      }
-    }
+//         return await api(originalRequest);
+//       } catch (err) {
+//         console.log('Error:', err);
+//       }
+//     }
 
-    return Promise.reject(error);
-  }
-);
+//     return Promise.reject(error);
+//   }
+// );
 
 export default api;
