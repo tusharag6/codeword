@@ -39,6 +39,7 @@ export default function LoginCard() {
     mutationFn: login,
     onSuccess: () => {
       navigate('/');
+      reset();
       toast.success('Login successful');
     },
     onError: () => {
@@ -49,9 +50,8 @@ export default function LoginCard() {
   const onSubmit: SubmitHandler<TLoginSchema> = (data) => {
     try {
       mutate(data);
-      reset();
     } catch (error) {
-      console.error('Login failed:', error);
+      // console.error('Login failed:', error);
     }
   };
 

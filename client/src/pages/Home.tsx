@@ -19,13 +19,11 @@ function Home() {
 
   const fetchUserInfo = async (): Promise<void> => {
     try {
-      console.log('Fetching user info');
       const response: AxiosResponse = await api.get('/user/profile');
       const responseData = response.data;
-      console.log('Fetched User Info');
       setUserInfo(responseData);
-    } catch (error) {
-      console.log('Error fetching user info:', error);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       if (error.response.status === 401) {
         const newAccessToken = await refresh();
         if (newAccessToken) {

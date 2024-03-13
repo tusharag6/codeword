@@ -74,8 +74,6 @@ const refreshToken = async (req: Request, res: Response) => {
   const refreshToken = req.cookies?.refreshToken;
 
   if (!refreshToken || typeof refreshToken !== "string") {
-    console.log("Refresh token not found, login again");
-
     return res.json({ message: "Refresh token not found, login again" });
   }
 
@@ -108,8 +106,6 @@ const refreshToken = async (req: Request, res: Response) => {
 
 const getUserInfo = async (req: CustomRequest, res: Response) => {
   const accessToken = req.headers.authorization?.split(" ")[1];
-  console.log(accessToken);
-
   if (!accessToken) {
     throw new ApiError(401, "Access token not provided");
   }
