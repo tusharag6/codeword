@@ -1,4 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useMutation } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import { Button } from './ui/button';
 import {
   Card,
@@ -10,8 +15,46 @@ import {
 } from './ui/card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { login } from '../api/auth';
+
+export const loginSchema = z.object({
+  email: z.string().email().min(5, 'Email is required'),
+  password: z.string().min(10, 'Password must be at least 10 characters'),
+});
+export type TLoginSchema = z.infer<typeof loginSchema>;
 
 export default function LoginCard() {
+  const navigate = useNavigate();
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<TLoginSchema>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      navigate('/');
+      reset();
+      toast.success('Login successful');
+    },
+    onError: () => {
+      toast.error('Login failed');
+    },
+  });
+
+  const onSubmit: SubmitHandler<TLoginSchema> = (data) => {
+    try {
+      mutate(data);
+    } catch (error) {
+      // console.error('Login failed:', error);
+    }
+  };
+
   return (
     <Card className="border-transparent">
       <CardHeader className="flex flex-col items-center">
@@ -21,38 +64,52 @@ export default function LoginCard() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid w-full items-center gap-4">
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="email" className="pb-1">
                 Email
               </Label>
               <Input
+                {...register('email')}
                 type="email"
                 id="email"
                 className="bg-input border-transparent"
                 required
               />
+              {errors.email && (
+                <p className="text-red-500">{`${errors.email.message}`}</p>
+              )}
             </div>
             <div className="flex flex-col space-y-1.5">
               <Label htmlFor="password" className="pb-1">
                 Password
               </Label>
               <Input
+                {...register('password')}
                 type="password"
                 id="password"
                 className="bg-input border-transparent"
                 required
               />
+              {errors.password && (
+                <p className="text-red-500">{`${errors.password.message}`}</p>
+              )}
               <div className="text-xs text-[#0b8ccd]">
                 Forgot your password?{' '}
               </div>
             </div>
           </div>
+          <Button
+            disabled={isSubmitting || isPending}
+            type="submit"
+            className="w-full disabled:bg-gray-500 mt-4"
+          >
+            Login
+          </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 items-start">
-        <Button className="w-full">Login</Button>
+      <CardFooter>
         <div className="text-sm text-[#a4a9b0]">
           Need an account?
           <Link className="text-[#0b8ccd]" to="/register">

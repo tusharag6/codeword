@@ -3,6 +3,8 @@ import {
   registerUser,
   loginUser,
   logoutUser,
+  refreshToken,
+  getUserInfo,
 } from "../controllers/auth.controller";
 import { upload } from "../middlewares/multer.middlewares";
 import { verifyJwt } from "../middlewares/auth.middlewares";
@@ -19,4 +21,7 @@ router.route("/register").post(
 );
 router.route("/login").post(loginUser);
 router.route("/logout").post(verifyJwt, logoutUser);
+router.route("/refresh").post(refreshToken);
+router.route("/profile").get(getUserInfo);
+
 export default router;
