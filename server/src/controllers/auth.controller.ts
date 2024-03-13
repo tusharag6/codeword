@@ -105,10 +105,11 @@ const refreshToken = async (req: Request, res: Response) => {
 };
 
 const getUserInfo = async (req: CustomRequest, res: Response) => {
-  const accessToken = req.headers.authorization?.split(" ")[1];
-  if (!accessToken) {
-    throw new ApiError(401, "Access token not provided");
-  }
+  const accessToken = req.headers.authorization?.split(" ")[1] ?? "";
+  // if (!accessToken) {
+  //   res.sendStatus(401).json("Access Token Not Provided");
+  //   // throw new ApiError(401, "Access token not provided");
+  // }
 
   jwt.verify(
     accessToken,

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Cookies from 'js-cookie';
 import api from '../api/axios';
 import { Button } from '../components/ui/button';
 import { logoutUser, refresh } from '../api/auth';
@@ -24,6 +25,16 @@ function Home() {
       setUserInfo(responseData);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      if (
+        !Cookies.get('refreshToken') ||
+        !localStorage.getItem('accessToken')
+      ) {
+        toast.error('Please login to continue');
+        navigate('/login');
+        localStorage.removeItem('accessToken');
+        Cookies.remove('refreshToken');
+      }
+
       if (error.response.status === 401) {
         const newAccessToken = await refresh();
         if (newAccessToken) {
