@@ -64,7 +64,9 @@ const logoutUser = async (req: CustomRequest, res: Response) => {
       .clearCookie("refreshToken")
       .json({ message: "user logged out" });
   } catch (error) {
-    console.log("Error:", error);
+    console.log("Error", error);
+
+    res.status(401).json({ message: "Unauthorized" });
   }
 };
 

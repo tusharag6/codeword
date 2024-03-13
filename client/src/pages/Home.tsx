@@ -1,6 +1,11 @@
 import { AxiosResponse } from 'axios';
 import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import api from '../api/axios';
+import { Button } from '../components/ui/button';
+import { logoutUser } from '../api/auth';
 
 interface UserInfo {
   id: string;
@@ -10,6 +15,7 @@ interface UserInfo {
 
 function Home() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const navigate = useNavigate();
 
   const fetchUserInfo = async () => {
     try {
@@ -21,9 +27,30 @@ function Home() {
     }
   };
 
+  const { mutate, isPending } = useMutation({
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      localStorage.removeItem('accessToken');
+      navigate('/login');
+      toast.success('Logout successful');
+    },
+    onError: () => {
+      toast.error('Logout failed');
+    },
+  });
+
   return (
     <div>
       <h1>Home</h1>
+      <Button
+        onClick={() => {
+          mutate();
+        }}
+        type="submit"
+        disabled={isPending}
+      >
+        Logout
+      </Button>
       {userInfo ? (
         <div>
           <h2>User Info</h2>

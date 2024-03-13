@@ -25,3 +25,15 @@ export const registerUser = async (
     throw new Error('Registration failed');
   }
 };
+
+export const logoutUser = async (): Promise<void> => {
+  try {
+    const response: AxiosResponse = await api.post('/user/logout');
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log('Logout failed:', error);
+
+    throw new Error('Logout failed');
+  }
+};
